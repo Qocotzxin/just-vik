@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "just-vik": {
+    "mis-ventas-ba": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -24,7 +24,7 @@
               "path": "./custom-webpack.config.js",
               "replaceDuplicatePlugins": true
             },
-            "outputPath": "dist/just-vik",
+            "outputPath": "dist/mis-ventas-ba",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -73,18 +73,18 @@
         "serve": {
           "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
-            "browserTarget": "just-vik:build"
+            "browserTarget": "mis-ventas-ba:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "just-vik:build:production"
+              "browserTarget": "mis-ventas-ba:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "just-vik:build"
+            "browserTarget": "mis-ventas-ba:build"
           }
         },
         "test": {
@@ -111,27 +111,14 @@
             "tsConfig": [
               "tsconfig.app.json",
               "tsconfig.spec.json",
-              "e2e/tsconfig.json"
             ],
             "exclude": [
               "**/node_modules/**"
             ]
           }
-        },
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "just-vik:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "just-vik:serve:production"
-            }
-          }
         }
       }
     }
   },
-  "defaultProject": "just-vik"
+  "defaultProject": "mis-ventas-ba"
 }

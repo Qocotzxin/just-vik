@@ -5,14 +5,14 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyCaNuWGBPcWVe_dJMIzSiUvUPxfXUpcDc4",
-    authDomain: "just-vik.firebaseapp.com",
-    databaseURL: "https://just-vik.firebaseio.com",
-    projectId: "just-vik",
-    storageBucket: "just-vik.appspot.com",
-    messagingSenderId: "1045708708713",
-    appId: "1:1045708708713:web:ac17c4ff20e77f99593bf8"
-  }
+    apiKey: 'AIzaSyBfQxNVPXAWe1KPeeapYbyZOwhMF_IjOUw',
+    authDomain: 'mis-ventas-ba.firebaseapp.com',
+    databaseURL: 'https://mis-ventas-ba.firebaseio.com',
+    projectId: 'mis-ventas-ba',
+    storageBucket: 'mis-ventas-ba.appspot.com',
+    messagingSenderId: '1066132548400',
+    appId: '1:1066132548400:web:5f6f7fa4397d1f7dc2b6f5',
+  },
 };
 
 /*

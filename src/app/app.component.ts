@@ -9,7 +9,7 @@ import { AuthService } from './services/auth.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'just-vik';
+  title = 'mis-ventas-ba';
 
   constructor(public authService: AuthService, public router: Router) {}
 }
