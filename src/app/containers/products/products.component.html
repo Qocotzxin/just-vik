@@ -1,0 +1,31 @@
+<section class="page">
+
+  <!-- Header -->
+  <div class="page__header">
+    <h1>Productos</h1>
+    <div>
+      <button class="page__actions" mat-mini-fab color="primary" aria-label="Agregar producto" primary
+        matTooltip="Agregar producto" (click)="router.navigate(['products', 'add'])">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="products | async as productList" style="width: 100%;">
+    <ag-grid-angular *ngIf="productList.length; else emptyData" class="ag-theme-alpine-dark" [rowData]="productList"
+      [columnDefs]="columnDefs" [localeText]="localeText" [frameworkComponents]="frameworkComponents"
+      rowSelection="single" (cellClicked)="onCellClicked($event, productList)" [pagination]="true"
+      [paginationPageSize]="25">
+    </ag-grid-angular>
+  </div>
+
+  <!-- Spinner -->
+  <mat-spinner *ngIf="loading" [diameter]="50"></mat-spinner>
+
+  <!-- Empty state -->
+  <ng-template #emptyData>
+    <h2 class="page">No hay productos cargados</h2>
+  </ng-template>
+</section>
+<router-outlet></router-outlet>

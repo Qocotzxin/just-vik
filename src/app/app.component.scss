@@ -1,0 +1,13 @@
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid lightgrey;
+  width: 45px;
+  height: 45px;
+}
+
+.mat-toolbar > * {
+  margin: 0 1em;
+}

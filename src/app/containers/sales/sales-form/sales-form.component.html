@@ -1,0 +1,88 @@
+<section class="sales-form">
+  <h1>Agregar Venta</h1>
+  <form (ngSubmit)="onSubmit(formDirective)" [formGroup]="form" #formDirective="ngForm">
+    <div>
+      <mat-form-field appearance="outline">
+        <mat-label>Producto</mat-label>
+        <mat-select formControlName="product">
+          <mat-option *ngFor="let product of (products | async) as productsList" [value]="product">
+            {{product.name}}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.invalid">Campo requerido.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Cantidad</mat-label>
+        <input matInput formControlName="quantity">
+        <mat-error *ngIf="form.invalid">La cantidad vendida no puede ser menor o igual a cero.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Precio de Venta</mat-label>
+        <input matInput type="number" formControlName="salesPrice">
+        <mat-icon matSuffix>attach_money</mat-icon>
+        <mat-error *ngIf="form.invalid">Campo requerido.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Total de Venta</mat-label>
+        <input matInput type="number" formControlName="salesTotal">
+        <mat-icon matSuffix>attach_money</mat-icon>
+        <mat-error *ngIf="form.invalid">Campo requerido.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Stock Remanente</mat-label>
+        <input matInput type="number" formControlName="remainingStock">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo de Descuento</mat-label>
+        <mat-select formControlName="discountType">
+          <mat-option *ngFor="let type of operationTypes" [value]="type">
+            {{type}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Descuento</mat-label>
+        <input matInput type="number" formControlName="discount">
+        <mat-error *ngIf="form.invalid">Campo requerido.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo de Recargo</mat-label>
+        <mat-select formControlName="extraChargeType">
+          <mat-option *ngFor="let type of operationTypes" [value]="type">
+            {{type}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Recargo</mat-label>
+        <input matInput type="number" formControlName="extraCharge">
+        <mat-error *ngIf="form.invalid">Campo requerido.</mat-error>
+      </mat-form-field>
+
+      <mat-error *ngIf="form.invalid && form.errors && form.errors.maxStock">
+        No se pueden vender más cantidades de las que hay
+        en stock.
+      </mat-error>
+
+    </div>
+    <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
+      <mat-spinner *ngIf="loading; else btnText" [diameter]="36" color="accent"></mat-spinner>
+      <ng-template #btnText>
+        Guardar
+      </ng-template>
+    </button>
+  </form>
+
+  <ng-template #emptyData>
+    <h2 class="page">No hay productos cargados</h2>
+  </ng-template>
+
+</section>

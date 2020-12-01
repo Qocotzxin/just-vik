@@ -1,0 +1,19 @@
+<div class="page">
+  <div class="page__header">
+    <h1>Últimas Ventas</h1>
+    <div>
+      <mat-form-field appearance="outline">
+        <mat-label>Lapso</mat-label>
+        <mat-select [formControl]="selected">
+          <mat-option *ngFor="let lapse of lapses" [value]="lapse">
+            {{lapse}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="chart-container">
+    <mat-spinner *ngIf="loading" [diameter]="50"></mat-spinner>
+    <canvas width="1080" height="720" #chart></canvas>
+  </div>
+</div>

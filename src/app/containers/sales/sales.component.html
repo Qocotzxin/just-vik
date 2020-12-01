@@ -1,0 +1,23 @@
+<section class="page">
+  <!-- Header -->
+  <div class="page__header page__header--no-title">
+    <div>
+      <button class="page__actions" mat-mini-fab color="primary" aria-label="Agregar Venta" primary
+        matTooltip="Agregar Venta" (click)="view = views.form" [disabled]="view === views.form">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button class="page__actions" mat-mini-fab color="primary" aria-label="Ventas por día" primary
+        matTooltip="Ventas por día" (click)="view = views.salesTimeChart" [disabled]="view === views.salesTimeChart">
+        <mat-icon>show_chart</mat-icon>
+      </button>
+      <button class="page__actions" mat-mini-fab color="primary" aria-label="Ventas por producto" primary
+        matTooltip="Ventas por producto" (click)="view = views.salesProductChart"
+        [disabled]="view === views.salesProductChart">
+        <mat-icon>donut_small</mat-icon>
+      </button>
+    </div>
+  </div>
+  <!-- Form -->
+  <app-sales-form [products]="product$" *ngIf="view === views.form"></app-sales-form>
+  <app-sales-chart *ngIf="view !== views.form" [type]="view" [userId]="user?.uid"></app-sales-chart>
+</section>
