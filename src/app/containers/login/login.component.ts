@@ -15,8 +15,8 @@ export class LoginComponent {
     this.auth
       .signInWithPopup(new firebase.auth.GoogleAuthProvider())
       .then((data) => {
-        if (data.user?.email) {
-          this.router.navigate(['/dashboard']);
+        if (data.user) {
+          this.router.navigate(['/products']);
         }
       })
       .catch(() => {});

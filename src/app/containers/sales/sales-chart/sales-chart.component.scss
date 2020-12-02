@@ -10,6 +10,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  &__actions button {
+    margin: 1em;
+  }
 }
 
 .mat-spinner {

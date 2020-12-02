@@ -125,7 +125,7 @@ export class ProductsComponent implements OnInit {
     }
 
     this.products = (this._afs
-      .collection(`users/${this._user?.uid}/products`)
+      .collection(`users/${this._user?.email}/products`)
       .valueChanges({ idField: 'id' }) as Observable<Product[]>).pipe(
       map((data) => {
         this.loading = false;
@@ -164,7 +164,7 @@ export class ProductsComponent implements OnInit {
   private async _onDelete(id: string) {
     try {
       await this._afs
-        .doc<Product>(`users/${this._user?.uid}/products/${id}`)
+        .doc<Product>(`users/${this._user?.email}/products/${id}`)
         .delete();
       this._snackBar.open(
         'El producto fue eliminado correctamente.',

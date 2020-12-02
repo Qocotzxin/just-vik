@@ -4,10 +4,29 @@
   justify-content: center;
   border-radius: 50%;
   border: 1px solid lightgrey;
-  width: 45px;
-  height: 45px;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
 }
 
-.mat-toolbar > * {
-  margin: 0 1em;
+.mat-toolbar {
+  display: flex;
+  justify-content: space-between;
+
+  & > div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 70%;
+
+    & > * {
+      margin: 0 0.5em;
+    }
+
+    h3 {
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
 }

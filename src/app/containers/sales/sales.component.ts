@@ -15,8 +15,7 @@ import { dateFnsFormat } from 'src/app/utils/dates';
 export class SalesComponent implements OnInit {
   views = {
     form: 'form',
-    salesTimeChart: 'sales-in-time-chart',
-    salesProductChart: 'sales-per-product-chart',
+    chart: 'chart',
   };
   user!: firebase.User | null;
   product$!: Observable<Product[]>;
@@ -37,7 +36,7 @@ export class SalesComponent implements OnInit {
     }
 
     this.product$ = (this._afs
-      .collection(`users/${this.user?.uid}/products`)
+      .collection(`users/${this.user?.email}/products`)
       .valueChanges({ idField: 'id' }) as Observable<Product[]>).pipe(
       map((data) => {
         this.loading = false;

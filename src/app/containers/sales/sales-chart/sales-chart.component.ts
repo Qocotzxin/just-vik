@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -10,19 +9,22 @@ import {
   ViewChild,
 } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { FormControl } from '@angular/forms';
 import Chart from 'chart.js';
-import 'chartjs-adapter-date-fns';
 import firebase from 'firebase/app';
 import round from 'lodash/round';
 import { Observable, Subject } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Lapse } from 'src/app/model/chart';
+import { GenericObject } from 'src/app/model/generic';
 import { Sale } from 'src/app/model/sale';
 import { getRandomColor } from 'src/app/utils/colors';
 import { dateFnsFormat, DATE_FORMATS, LABELS } from 'src/app/utils/dates';
 
 const WHITE = '#fff';
+const CHART_BASIS = {
+  PRODUCT: 'product',
+  TIME: 'time',
+};
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,73 +32,77 @@ const WHITE = '#fff';
   templateUrl: 'sales-chart.component.html',
   styleUrls: ['./sales-chart.component.scss'],
 })
-export class SalesChartComponent implements OnInit, AfterViewInit, OnDestroy {
+export class SalesChartComponent implements OnInit, OnDestroy {
   private _unsubscribe$ = new Subject<void>();
   private _labels = LABELS[Lapse.week].value();
-  private _type!: string;
 
   /**
    * Ref to canvas element.
    */
   @ViewChild('chart') chartRef!: ElementRef<HTMLCanvasElement>;
 
+  /**
+   * Chart class to programatically take action on it.
+   */
   chart: Chart | null = null;
+
+  /**
+   * Type of chart to show (time/line or product/doughnut).
+   */
+  type = CHART_BASIS.TIME;
 
   /**
    * User ID to use with collections.
    */
-  @Input() userId?: string;
+  @Input() userEmail?: string | null;
 
-  get type(): string {
-    return this._type;
-  }
+  /**
+   * Selected time frame.
+   */
+  selected$ = new Subject<Lapse>();
 
-  @Input()
-  set type(val: string) {
-    this._type = val;
-    this.selected.setValue(Lapse.week);
-  }
-
-  lapses = [Lapse.week, Lapse.month, Lapse.year];
-
-  selected = new FormControl();
-
+  /**
+   * Flag to show/hide spinner.
+   */
   loading = true;
 
   constructor(private _afs: AngularFirestore, private _cd: ChangeDetectorRef) {}
 
   ngOnInit() {
-    this.selected.valueChanges
+    // Stream is based on time frame change.
+    this.selected$
       .pipe(
         tap(() => {
+          if (this.chart) {
+            this.chart.destroy();
+          }
           this.loading = true;
         }),
         takeUntil(this._unsubscribe$),
         switchMap((lapse: Lapse) => {
           this._labels = LABELS[lapse].value();
           return (this._afs
-            .collection(`users/${this.userId}/sales`, (ref) =>
+            .collection(`users/${this.userEmail}/sales`, (ref) =>
               ref.where('lastModification', '>=', LABELS[lapse].condition())
             )
             .valueChanges() as Observable<Sale[]>).pipe(
             takeUntil(this._unsubscribe$),
             map((s) => {
-              return !this.type.includes('product')
+              return this.type === CHART_BASIS.TIME
                 ? this._setSalesInTimeChartMapping(s, lapse)
                 : this._setSalesPerProductChartMapping(s, lapse);
             })
           );
         })
       )
-      .subscribe((data) =>
-        !this.type.includes('product')
+      .subscribe((data) => {
+        this.type === CHART_BASIS.TIME
           ? this._createSalesInTimeChart(data)
-          : this._createSalesPerProductChart(data)
-      );
-  }
+          : this._createSalesPerProductChart(data);
 
-  ngAfterViewInit() {
-    this.selected.setValue(Lapse.week);
+        this.loading = false;
+        this._cd.detectChanges();
+      });
   }
 
   ngOnDestroy() {
@@ -104,9 +110,20 @@ export class SalesChartComponent implements OnInit, AfterViewInit, OnDestroy {
     this._unsubscribe$.complete();
   }
 
-  private _createSalesInTimeChart = (data: {
-    [id: string]: number | string;
-  }) => {
+  setType(type: string) {
+    this.type = type;
+  }
+
+  /**
+   * Destroys the current chart (if any) and creates a new
+   * time based line chart.
+   * @private
+   * @property
+   * @param data: GenericObject
+   */
+  private _createSalesInTimeChart: (data: GenericObject) => void = (
+    data: GenericObject
+  ) => {
     if (this.chart) {
       this.chart.destroy();
     }
@@ -161,13 +178,18 @@ export class SalesChartComponent implements OnInit, AfterViewInit, OnDestroy {
         },
       },
     });
-    this.loading = false;
-    this._cd.detectChanges();
   };
 
-  private _createSalesPerProductChart = (data: {
-    [id: string]: number | string;
-  }) => {
+  /**
+   * Destroys the current chart (if any) and creates a new
+   * product based doughnut chart.
+   * @private
+   * @property
+   * @param data: GenericObject
+   */
+  private _createSalesPerProductChart: (data: GenericObject) => void = (
+    data: GenericObject
+  ) => {
     if (this.chart) {
       this.chart.destroy();
     }
@@ -183,7 +205,7 @@ export class SalesChartComponent implements OnInit, AfterViewInit, OnDestroy {
           {
             label: 'Ventas ($)',
             data: this._labels.map((l) => round(+data[l], 2) || 0),
-            backgroundColor: this._labels.map(l => getRandomColor()),
+            backgroundColor: this._labels.map((l) => getRandomColor()),
             borderColor: WHITE,
           },
         ],
@@ -205,12 +227,18 @@ export class SalesChartComponent implements OnInit, AfterViewInit, OnDestroy {
         },
       },
     });
-    this.loading = false;
-    this._cd.detectChanges();
   };
 
-  private _setSalesInTimeChartMapping(s: Sale[], lapse: Lapse) {
-    return s.reduce((acc: { [id: string]: number }, cur) => {
+  /**
+   * Maps the sales information to fill the time based chart.
+   * @private
+   * @method
+   * @param s: Array<Sale>
+   * @param lapse: Lapse
+   * @returns GenericObject
+   */
+  private _setSalesInTimeChartMapping(s: Sale[], lapse: Lapse): GenericObject {
+    return s.reduce((acc: GenericObject, cur) => {
       const lastModification = LABELS[lapse].keys(
         (cur.lastModification as firebase.firestore.Timestamp).toDate(),
         this._labels
@@ -226,19 +254,27 @@ export class SalesChartComponent implements OnInit, AfterViewInit, OnDestroy {
     }, {});
   }
 
-  private _setSalesPerProductChartMapping(s: Sale[], lapse: Lapse) {
-    const salesPerProduct = s.reduce(
-      (acc: { [id: string]: number | string }, cur) => {
-        if (!acc[cur.product.name!]) {
-          acc[cur.product.name!] = cur.salesTotal;
-        } else {
-          acc[cur.product.name!] = cur.salesTotal + +acc[cur.product.name!];
-        }
+  /**
+   * Maps the sales information to fill the product based chart.
+   * @private
+   * @method
+   * @param s: Array<Sale>
+   * @param lapse: Lapse
+   * @returns GenericObject
+   */
+  private _setSalesPerProductChartMapping(
+    s: Sale[],
+    lapse: Lapse
+  ): GenericObject {
+    const salesPerProduct = s.reduce((acc: GenericObject, cur) => {
+      if (!acc[cur.product.name!]) {
+        acc[cur.product.name!] = cur.salesTotal;
+      } else {
+        acc[cur.product.name!] = cur.salesTotal + +acc[cur.product.name!];
+      }
 
-        return acc;
-      },
-      {}
-    );
+      return acc;
+    }, {});
 
     this._labels = Object.keys(salesPerProduct);
 

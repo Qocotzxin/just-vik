@@ -1,16 +1,17 @@
 <div class="page">
   <div class="page__header">
     <h1>Últimas Ventas</h1>
-    <div>
-      <mat-form-field appearance="outline">
-        <mat-label>Lapso</mat-label>
-        <mat-select [formControl]="selected">
-          <mat-option *ngFor="let lapse of lapses" [value]="lapse">
-            {{lapse}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+    <app-lapse-selector [currentValue$]="selected$" [reset]="type"></app-lapse-selector>
+  </div>
+  <div class="chart-container__actions">
+    <button mat-raised-button color="primary" aria-label="Ventas por día" matTooltip="Ventas por día"
+      (click)="setType('time')" [disabled]="type === 'time'">
+      Por día
+    </button>
+    <button mat-raised-button color="primary" aria-label="Ventas por producto" matTooltip="Ventas por producto"
+      (click)="setType('product')" [disabled]="type === 'product'">
+      Por producto
+    </button>
   </div>
   <div class="chart-container">
     <mat-spinner *ngIf="loading" [diameter]="50"></mat-spinner>

@@ -1,0 +1,9 @@
+<section class="page">
+  <div class="page__header">
+    <h1>Balance</h1>
+    <app-lapse-selector [currentValue$]="selected$"></app-lapse-selector>
+  </div>
+  <div class="chart">
+    <canvas width="1080" height="720" #chart></canvas>
+  </div>
+</section>

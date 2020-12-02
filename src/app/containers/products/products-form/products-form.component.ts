@@ -75,7 +75,7 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     await this._setUserAndDefineAction();
     this._productsCollection = this._afs.collection<Product[]>(
-      `users/${this._user?.uid}/products`
+      `users/${this._user?.email}/products`
     );
 
     this.form.valueChanges
@@ -122,8 +122,8 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
       this._openSnackBar('No se pudo guardar el producto.', 'CERRAR');
     }
 
-    this.form.reset(this.originalValues);
     formDirective.resetForm();
+    this.form.reset(this.originalValues);
     this.loading = false;
   }
 
@@ -148,7 +148,7 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
               this.loading = true;
               this.buttonAction = 'Actualizar';
               this._productsDoc = this._afs.doc<Product>(
-                `users/${this._user?.uid}/products/${params.id}`
+                `users/${this._user?.email}/products/${params.id}`
               );
 
               return this._productsDoc.valueChanges();

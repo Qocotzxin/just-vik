@@ -1,0 +1,8 @@
+<mat-form-field appearance="outline">
+  <mat-label>Lapso de Tiempo</mat-label>
+  <mat-select [(value)]="value" (selectionChange)="onSelectionChange($event)">
+    <mat-option *ngFor="let lapse of lapses" [value]="lapse">
+      {{lapse}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>

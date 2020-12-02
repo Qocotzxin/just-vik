@@ -54,6 +54,22 @@ const routes: Routes = [
       },
     ],
   },
+  {
+    path: 'balance',
+    canActivate: [AngularFireAuthGuard],
+    data: { authGuardPipe: () => redirectUnauthorizedTo(['']) },
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('./containers/balance/balance.module').then((m) => m.BalanceModule),
+      },
+    ],
+  },
+  // {
+  //   path: '*',
+  //   loadChildren: () => import('./components/not-found/not-found.module').then((m) => m.NotFoundModule),
+  // }
 ];
 
 @NgModule({

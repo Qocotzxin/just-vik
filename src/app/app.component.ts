@@ -9,7 +9,23 @@ import { AuthService } from './services/auth.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'mis-ventas-ba';
+  links = [
+    {
+      path: '/products',
+      icon: 'category',
+      name: 'Productos',
+    },
+    {
+      path: '/sales',
+      icon: 'point_of_sale',
+      name: 'Ventas',
+    },
+    {
+      path: '/balance',
+      icon: 'trending_up',
+      name: 'Balance',
+    },
+  ];
 
   constructor(public authService: AuthService, public router: Router) {}
 }

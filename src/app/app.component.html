@@ -1,18 +1,36 @@
-<mat-toolbar *ngIf="authService.user | async as user">
-  <ng-container>
-    <img class="avatar" *ngIf="user.photoURL; else initials" [src]="user.photoURL" alt="Foto de perfil."
-      matTooltip="{{user.displayName}}">
-    <ng-template #initials>
-      <p>{{ user && user.displayName && user.displayName[0] }}</p>
-    </ng-template>
-  </ng-container>
+<mat-sidenav-container>
 
-  <button mat-icon-button aria-label="Producto" matTooltip="Productos" (click)="router.navigate(['products'])">
-    <mat-icon>category</mat-icon>
-  </button>
+  <mat-sidenav #sidenav>
+    <mat-nav-list>
 
-  <button mat-icon-button aria-label="Ventas" matTooltip="Ventas" (click)="router.navigate(['sales'])">
-    <mat-icon>point_of_sale</mat-icon>
-  </button>
-</mat-toolbar>
-<router-outlet></router-outlet>
+      <mat-list-item *ngFor="let link of links" [routerLink]="link.path" (click)="sidenav.close()">
+        <mat-icon mat-list-icon>{{link.icon}}</mat-icon>
+        <div mat-line>{{link.name}}</div>
+      </mat-list-item>
+
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+
+    <mat-toolbar *ngIf="authService.user | async as user">
+      <div>
+        <button mat-icon-button aria-label="Abrir menú" matTooltip="Abrir menú" (click)="sidenav.open()">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <h3>Panel de {{user.displayName}}</h3>
+      </div>
+      <ng-container>
+        <img class="avatar" *ngIf="user.photoURL; else initials" [src]="user.photoURL" alt="Foto de perfil."
+          matTooltip="{{user.displayName}}">
+        <ng-template #initials>
+          <p>{{ user && user.displayName && user.displayName[0] }}</p>
+        </ng-template>
+      </ng-container>
+    </mat-toolbar>
+
+    <router-outlet></router-outlet>
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

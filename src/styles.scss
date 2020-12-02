@@ -78,3 +78,18 @@ input:-webkit-autofill {
     margin: 4em 0;
   }
 }
+
+// Sidenav
+.mat-drawer-container {
+  height: 100vh;
+}
+
+.mat-sidenav {
+  padding: 0 1em;
+
+  & > div:first-child {
+    width: calc(100% + 2em);
+    margin-right: 1em;
+    margin-left: -1em;
+  }
+}

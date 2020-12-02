@@ -84,6 +84,7 @@ export class SalesFormComponent implements OnInit {
     },
     [maxStock]
   );
+  originalValues = this.form.value;
 
   constructor(
     private _afs: AngularFirestore,
@@ -104,7 +105,7 @@ export class SalesFormComponent implements OnInit {
     }
 
     this._salesCollection = this._afs.collection<Sale[]>(
-      `users/${this._user?.uid}/sales`
+      `users/${this._user?.email}/sales`
     );
 
     this.form.valueChanges
@@ -128,11 +129,10 @@ export class SalesFormComponent implements OnInit {
       return;
     }
 
-    this.form.disable();
     const product = this.form.get('product')?.value;
 
     this._productDoc = this._afs.doc<Product>(
-      `users/${this._user?.uid}/products/${product.id}`
+      `users/${this._user?.email}/products/${product.id}`
     );
 
     try {
@@ -149,7 +149,6 @@ export class SalesFormComponent implements OnInit {
         stock: product.stock - this.form.get('quantity')?.value,
       });
       this._openSnackBar('La venta se guardó con éxito.', 'CERRAR');
-      this.form.reset();
       formDirective.resetForm();
     } catch {
       this._openSnackBar(
@@ -157,8 +156,9 @@ export class SalesFormComponent implements OnInit {
         'CERRAR'
       );
     } finally {
+      formDirective.resetForm();
+      this.form.reset(this.originalValues);
       this.loading = false;
-      this.form.enable();
     }
   }
 
