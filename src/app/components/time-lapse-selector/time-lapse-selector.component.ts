@@ -4,8 +4,8 @@ import { Subject } from 'rxjs';
 import { Lapse } from 'src/app/model/chart';
 
 @Component({
-  selector: 'app-lapse-selector',
-  templateUrl: 'lapse-selector.component.html',
+  selector: 'app-time-lapse-selector',
+  templateUrl: 'time-lapse-selector.component.html',
 })
 export class LapseSelectorComponent implements AfterViewInit {
   private _reset: string | null = null;
