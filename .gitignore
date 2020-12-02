@@ -46,6 +46,6 @@ testem.log
 Thumbs.db
 
 #firebase
-/.firebase
-/.github
+# /.firebase
+# /.github
 
