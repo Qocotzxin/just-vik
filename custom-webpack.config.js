@@ -1,5 +1,5 @@
 const webpack = require('webpack');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const supportedLocales = ['es'];
 
 module.exports = {
@@ -11,6 +11,6 @@ module.exports = {
       /date\-fns[\/\\]/,
       new RegExp(`[/\\\\\](${supportedLocales.join('|')})[/\\\\\]index\.js$`)
     ),
-    new BundleAnalyzerPlugin()
+    // new BundleAnalyzerPlugin()
   ]
 };
