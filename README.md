@@ -29,3 +29,18 @@ Esta es la versión 1.0.0 pero con el tiempo se irán agregando cosas nuevas dep
 - Por el momento existent únicamente 2 entidades (Producto y Venta) en base a las cuales se obtiene la información para generar los gráficos.
 
 - La configuración de Firestore está habilitada para que cualquier usuario logueado pueda modificar datos. Por el momento esto no se va a restringir al menos que se super el cupo diario de operaciones. En tal caso se analizará la situación para proceder con el menor impacto posible.
+
+## Instalación
+
+- `git clone https://github.com/Qocotzxin/mis-ventas-ba.git`
+- `cd mis-ventas-ba`
+- `npm i`
+
+## Desarrollo local
+
+- `npm start`
+
+## Deploy
+
+- `firebase login`
+- `npm run deploy`
