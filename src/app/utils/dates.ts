@@ -1,7 +1,7 @@
 import getWeekOfMonth from 'date-fns/getWeekOfMonth';
 import eachWeekOfInterval from 'date-fns/eachWeekOfInterval';
 import format from 'date-fns/format';
-import { es } from 'date-fns/locale';
+import es from 'date-fns/locale/es/index.js';
 import sub from 'date-fns/sub';
 import { Lapse } from '../model/chart';
 

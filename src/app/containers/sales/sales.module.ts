@@ -1,8 +1,8 @@
+import { AgGridModule } from '@ag-grid-community/angular';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
-import { AgGridModule } from 'ag-grid-angular';
 import { DeleteBtnComponent } from 'src/app/components/ag-grid/delete-btn.component';
 import { MaterialModule } from 'src/app/material.module';
 import { SharedModule } from 'src/app/shared.module';

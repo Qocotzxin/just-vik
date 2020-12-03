@@ -1,3 +1,4 @@
+import { ColDef, RowClickedEvent } from '@ag-grid-community/core';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -9,7 +10,6 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { ColDef, RowClickedEvent } from 'ag-grid-community';
 import firebase from 'firebase/app';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';

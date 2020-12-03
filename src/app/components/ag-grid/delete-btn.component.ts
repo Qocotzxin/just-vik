@@ -1,5 +1,5 @@
+import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
-import { ICellRendererAngularComp } from 'ag-grid-angular';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

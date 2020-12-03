@@ -9,21 +9,21 @@ import {
 } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import Chart from 'chart.js';
 import round from 'lodash/round';
 import sum from 'lodash/sum';
 import sumBy from 'lodash/sumBy';
-import { combineLatest, Observable, Subject } from 'rxjs';
-import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { combineLatest, Observable, of, Subject } from 'rxjs';
+import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Lapse } from 'src/app/model/chart';
 import { GenericObject } from 'src/app/model/generic';
 import { Product } from 'src/app/model/product';
 import { Sale } from 'src/app/model/sale';
 import {
+  CHART_DATE_INFO,
   dateFnsFormat,
   DATE_FORMATS,
-  CHART_DATE_INFO,
 } from 'src/app/utils/dates';
 
 const WHITE = '#fff';
@@ -64,7 +64,8 @@ export class BalanceComponent implements OnInit, OnDestroy {
   constructor(
     private _afs: AngularFirestore,
     private _cd: ChangeDetectorRef,
-    private _auth: AngularFireAuth
+    private _auth: AngularFireAuth,
+    private _snackbar: MatSnackBar
   ) {}
 
   async ngOnInit() {
@@ -121,7 +122,14 @@ export class BalanceComponent implements OnInit, OnDestroy {
               };
             }),
             // Unsubscribe
-            takeUntil(this._unsubscribe$)
+            takeUntil(this._unsubscribe$),
+            catchError(() => {
+              this._snackbar.open(
+                'Hubo un error, por favor intente nuevamente.',
+                'CERRAR'
+              );
+              return of({});
+            })
           );
         })
       )
