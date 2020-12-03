@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { AuthService } from './services/auth.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,5 +28,16 @@ export class AppComponent {
     },
   ];
 
-  constructor(public authService: AuthService, public router: Router) {}
+  constructor(
+    public auth: AngularFireAuth,
+    public router: Router,
+    private _snackBar: MatSnackBar
+  ) {}
+
+  logout() {
+    this.auth
+      .signOut()
+      .then(() => this.router.navigate(['/']))
+      .catch(() => this._snackBar.open('No se pudo desloguear.', 'CERRAR'));
+  }
 }

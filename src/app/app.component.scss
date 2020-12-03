@@ -4,16 +4,15 @@
   justify-content: center;
   border-radius: 50%;
   border: 1px solid lightgrey;
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
+  width: 30px;
+  height: 30px;
 }
 
 .mat-toolbar {
   display: flex;
   justify-content: space-between;
 
-  & > div:first-child {
+  & > div {
     display: flex;
     align-items: center;
     justify-content: center;

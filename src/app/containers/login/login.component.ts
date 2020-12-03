@@ -21,8 +21,4 @@ export class LoginComponent {
       })
       .catch(() => {});
   }
-
-  logout() {
-    this.auth.signOut();
-  }
 }
