@@ -9,7 +9,7 @@ Inicialmente la aplicación fue pensada como reemplazo de una tabla excel pero q
 y la visualización de datos para una persona, pero decidí dejarla pública por si le puede ser de utilidad a
 alguien más.
 
-Esta es la versión 1.2.0 pero con el tiempo se irán agregando cosas nuevas dependiendo del uso que tenga.
+Esta es la versión 1.0.0 pero con el tiempo se irán agregando cosas nuevas dependiendo del uso que tenga.
 
 ## Stack y librerías destacables
 
