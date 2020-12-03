@@ -19,7 +19,6 @@ import { Lapse } from 'src/app/model/chart';
 import { GenericObject } from 'src/app/model/generic';
 import { Product } from 'src/app/model/product';
 import { Sale } from 'src/app/model/sale';
-import { getRandomColor } from 'src/app/utils/colors';
 import { dateFnsFormat, DATE_FORMATS, LABELS } from 'src/app/utils/dates';
 
 const WHITE = '#fff';
@@ -69,12 +68,12 @@ export class BalanceComponent implements OnInit, OnDestroy {
           }
           this.loading = true;
         }),
-        map((data) => ({ lapse: data[0], userEmail: data[1]?.email })),
+        map((data) => ({ lapse: data[0], uid: data[1]?.uid })),
         takeUntil(this._unsubscribe$),
         switchMap((data) => {
           return combineLatest([
             this._afs
-              .collection(`users/${data.userEmail}/products`, (ref) =>
+              .collection(`users/${data.uid}/products`, (ref) =>
                 ref.where(
                   'lastModification',
                   '>=',
@@ -83,7 +82,7 @@ export class BalanceComponent implements OnInit, OnDestroy {
               )
               .valueChanges() as Observable<Product[]>,
             this._afs
-              .collection(`users/${data.userEmail}/sales`, (ref) =>
+              .collection(`users/${data.uid}/sales`, (ref) =>
                 ref.where(
                   'lastModification',
                   '>=',

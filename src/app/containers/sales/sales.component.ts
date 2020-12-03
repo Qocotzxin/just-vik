@@ -36,7 +36,7 @@ export class SalesComponent implements OnInit {
     }
 
     this.product$ = (this._afs
-      .collection(`users/${this.user?.email}/products`)
+      .collection(`users/${this.user?.uid}/products`)
       .valueChanges({ idField: 'id' }) as Observable<Product[]>).pipe(
       map((data) => {
         this.loading = false;

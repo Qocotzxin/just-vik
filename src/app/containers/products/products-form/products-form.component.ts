@@ -75,7 +75,7 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     await this._setUserAndDefineAction();
     this._productsCollection = this._afs.collection<Product[]>(
-      `users/${this._user?.email}/products`
+      `users/${this._user?.uid}/products`
     );
 
     this.form.valueChanges
@@ -148,7 +148,7 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
               this.loading = true;
               this.buttonAction = 'Actualizar';
               this._productsDoc = this._afs.doc<Product>(
-                `users/${this._user?.email}/products/${params.id}`
+                `users/${this._user?.uid}/products/${params.id}`
               );
 
               return this._productsDoc.valueChanges();

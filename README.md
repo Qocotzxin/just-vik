@@ -1,19 +1,31 @@
 # Mis Ventas BA
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.1.
+Mis Ventas BA es un sistema muy simple pensado para pequeños/as emprendedores/as dentro del rubro comercial.
+La idea principal es que cualquier persona que se dedique a la venta minorista de productos pueda utilizar la
+plataforma para cargar sus productos, registrar las ventas y visualizar algunos reportes gráficos básicos.
+El único requisito para poder utilizar la aplicación es tener una cuenta de Gmail.
 
-## Development server
+Inicialmente la aplicación fue pensada como reemplazo de una tabla excel pero que pueda simplificar la carga
+y la visualización de datos para una persona, pero decidí dejarla pública por si le puede ser de utilidad a
+alguien más.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Esta es la versión 1.2.0 pero con el tiempo se irán agregando cosas nuevas dependiendo del uso que tenga.
 
-## Code scaffolding
+## Stack y librerías destacables
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Angular 11
+- Angular Material 11
+- Firebase 8
+- Angular Fire 6
+- Rxjs 6
+- Ag Grid 24
+- Date Fns 2
+- Lodash 4
 
-## Build
+## Insight
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+- Esta Web App no tiene backend, sino que está conectada directamente a Firebase, donde se alojan los datos que cargue el usuario.
 
-## Further help
+- Por el momento existent únicamente 2 entidades (Producto y Venta) en base a las cuales se obtiene la información para generar los gráficos.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+- La configuración de Firestore está habilitada para que cualquier usuario logueado pueda modificar datos. Por el momento esto no se va a restringir al menos que se super el cupo diario de operaciones. En tal caso se analizará la situación para proceder con el menor impacto posible.

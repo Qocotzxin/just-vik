@@ -105,7 +105,7 @@ export class SalesFormComponent implements OnInit {
     }
 
     this._salesCollection = this._afs.collection<Sale[]>(
-      `users/${this._user?.email}/sales`
+      `users/${this._user?.uid}/sales`
     );
 
     this.form.valueChanges
@@ -132,7 +132,7 @@ export class SalesFormComponent implements OnInit {
     const product = this.form.get('product')?.value;
 
     this._productDoc = this._afs.doc<Product>(
-      `users/${this._user?.email}/products/${product.id}`
+      `users/${this._user?.uid}/products/${product.id}`
     );
 
     try {

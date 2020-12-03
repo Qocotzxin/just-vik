@@ -54,7 +54,7 @@ export class SalesChartComponent implements OnInit, OnDestroy {
   /**
    * User ID to use with collections.
    */
-  @Input() userEmail?: string | null;
+  @Input() uid?: string | null;
 
   /**
    * Selected time frame.
@@ -82,7 +82,7 @@ export class SalesChartComponent implements OnInit, OnDestroy {
         switchMap((lapse: Lapse) => {
           this._labels = LABELS[lapse].value();
           return (this._afs
-            .collection(`users/${this.userEmail}/sales`, (ref) =>
+            .collection(`users/${this.uid}/sales`, (ref) =>
               ref.where('lastModification', '>=', LABELS[lapse].condition())
             )
             .valueChanges() as Observable<Sale[]>).pipe(
