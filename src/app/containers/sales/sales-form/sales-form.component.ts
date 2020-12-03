@@ -98,7 +98,7 @@ export class SalesFormComponent implements OnInit {
       this._user = await this._auth.currentUser;
     } catch {
       this._openSnackBar(
-        'No se pudo encontrar el usuario. Por favor intente nuevamente.',
+        'No se pudo encontrar el usuario. Por favor intentá nuevamente.',
         'CERRAR'
       );
       this._router.navigate(['']);
@@ -152,7 +152,7 @@ export class SalesFormComponent implements OnInit {
       formDirective.resetForm();
     } catch {
       this._openSnackBar(
-        'No se pudo guardar la venta. Por favor intente nuevamente.',
+        'No se pudo guardar la venta. Por favor intentá nuevamente.',
         'CERRAR'
       );
     } finally {

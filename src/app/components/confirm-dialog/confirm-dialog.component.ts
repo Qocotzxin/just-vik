@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Product } from 'src/app/model/product';
-
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<h1 mat-dialog-title>Confirmar</h1>

@@ -6,6 +6,7 @@ export interface Product {
   stock: number;
   unitPrice: number;
   transportCost: number;
+  taxes: number;
   otherTaxes: number;
   grossUnitPrice: number;
   expectedProfitPercentage: number;

@@ -18,7 +18,11 @@ import { Lapse } from 'src/app/model/chart';
 import { GenericObject } from 'src/app/model/generic';
 import { Sale } from 'src/app/model/sale';
 import { getRandomColor } from 'src/app/utils/colors';
-import { dateFnsFormat, DATE_FORMATS, LABELS } from 'src/app/utils/dates';
+import {
+  CHART_DATE_INFO,
+  dateFnsFormat,
+  DATE_FORMATS,
+} from 'src/app/utils/dates';
 
 const WHITE = '#fff';
 const CHART_BASIS = {
@@ -34,7 +38,7 @@ const CHART_BASIS = {
 })
 export class SalesChartComponent implements OnInit, OnDestroy {
   private _unsubscribe$ = new Subject<void>();
-  private _labels = LABELS[Lapse.week].value();
+  private _labels = CHART_DATE_INFO[Lapse.week].value();
 
   /**
    * Ref to canvas element.
@@ -72,26 +76,33 @@ export class SalesChartComponent implements OnInit, OnDestroy {
     // Stream is based on time frame change.
     this.selected$
       .pipe(
+        // Destroy previous chart (if any) and intialize loading state.
         tap(() => {
           if (this.chart) {
             this.chart.destroy();
           }
           this.loading = true;
         }),
-        takeUntil(this._unsubscribe$),
+        // Retrieves Firebase data.
         switchMap((lapse: Lapse) => {
-          this._labels = LABELS[lapse].value();
+          this._labels = CHART_DATE_INFO[lapse].value();
           return (this._afs
             .collection(`users/${this.uid}/sales`, (ref) =>
-              ref.where('lastModification', '>=', LABELS[lapse].condition())
+              ref.where(
+                'lastModification',
+                '>=',
+                CHART_DATE_INFO[lapse].condition()
+              )
             )
             .valueChanges() as Observable<Sale[]>).pipe(
-            takeUntil(this._unsubscribe$),
+            // Maps Firebase data to use in chart.
             map((s) => {
               return this.type === CHART_BASIS.TIME
                 ? this._setSalesInTimeChartMapping(s, lapse)
                 : this._setSalesPerProductChartMapping(s, lapse);
-            })
+            }),
+            // Unsubscribe.
+            takeUntil(this._unsubscribe$)
           );
         })
       )
@@ -124,10 +135,6 @@ export class SalesChartComponent implements OnInit, OnDestroy {
   private _createSalesInTimeChart: (data: GenericObject) => void = (
     data: GenericObject
   ) => {
-    if (this.chart) {
-      this.chart.destroy();
-    }
-
     this.chart = new Chart(this.chartRef.nativeElement.getContext('2d')!, {
       type: 'line',
       data: {
@@ -190,10 +197,6 @@ export class SalesChartComponent implements OnInit, OnDestroy {
   private _createSalesPerProductChart: (data: GenericObject) => void = (
     data: GenericObject
   ) => {
-    if (this.chart) {
-      this.chart.destroy();
-    }
-
     const init = data.init;
     delete data.init;
 
@@ -239,7 +242,7 @@ export class SalesChartComponent implements OnInit, OnDestroy {
    */
   private _setSalesInTimeChartMapping(s: Sale[], lapse: Lapse): GenericObject {
     return s.reduce((acc: GenericObject, cur) => {
-      const lastModification = LABELS[lapse].keys(
+      const lastModification = CHART_DATE_INFO[lapse].keys(
         (cur.lastModification as firebase.firestore.Timestamp).toDate(),
         this._labels
       );
@@ -279,7 +282,7 @@ export class SalesChartComponent implements OnInit, OnDestroy {
     this._labels = Object.keys(salesPerProduct);
 
     salesPerProduct.init = dateFnsFormat(
-      LABELS[lapse].condition(),
+      CHART_DATE_INFO[lapse].condition(),
       DATE_FORMATS.BASE
     );
 

@@ -48,6 +48,7 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
     stock: new FormControl(0, [Validators.required]),
     unitPrice: new FormControl(0, [Validators.required]),
     transportCost: new FormControl(0, [Validators.required]),
+    taxes: new FormControl(21),
     otherTaxes: new FormControl(0),
     grossUnitPrice: new FormControl({
       value: 0,
@@ -80,9 +81,9 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
 
     this.form.valueChanges
       .pipe(
-        takeUntil(this._unsubscribe$),
         tap(this._updateEstimatedProfit),
-        distinctUntilChanged(this._distinctCondition)
+        distinctUntilChanged(this._distinctCondition),
+        takeUntil(this._unsubscribe$)
       )
       .subscribe(this._updateFormValues);
 
@@ -163,7 +164,7 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
         });
     } catch {
       this._openSnackBar(
-        'No se pudo encontrar el usuario. Por favor intente nuevamente.',
+        'No se pudo encontrar el usuario. Por favor intentá nuevamente.',
         'CERRAR'
       );
       this._router.navigate(['']);
@@ -180,8 +181,9 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
     return (
       p.unitPrice === n.unitPrice &&
       p.transportCost === n.transportCost &&
-      p.expectedProfitPercentage == n.expectedProfitPercentage &&
-      p.otherTaxes == n.otherTaxes
+      p.expectedProfitPercentage === n.expectedProfitPercentage &&
+      p.otherTaxes === n.otherTaxes &&
+      p.taxes === n.taxes
     );
   };
 
@@ -213,7 +215,7 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
   private _updateFormValues = (data: Product) => {
     if (!this._userModifiedSales) {
       const grossUnitPrice = round(
-        (data.unitPrice * 21) / 100 +
+        (+data.unitPrice * +data.taxes) / 100 +
           +data.unitPrice +
           +data.transportCost +
           (data.unitPrice * data.otherTaxes) / 100,

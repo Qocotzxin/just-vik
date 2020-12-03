@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -19,11 +20,16 @@ import { Lapse } from 'src/app/model/chart';
 import { GenericObject } from 'src/app/model/generic';
 import { Product } from 'src/app/model/product';
 import { Sale } from 'src/app/model/sale';
-import { dateFnsFormat, DATE_FORMATS, LABELS } from 'src/app/utils/dates';
+import {
+  dateFnsFormat,
+  DATE_FORMATS,
+  CHART_DATE_INFO,
+} from 'src/app/utils/dates';
 
 const WHITE = '#fff';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./balance.component.scss'],
   templateUrl: 'balance.component.html',
 })
@@ -50,26 +56,30 @@ export class BalanceComponent implements OnInit, OnDestroy {
    */
   loading = true;
 
+  /**
+   * Observable that combines the selected timeframe and the user information.
+   */
   userAndLapseSubscription$ = combineLatest([this.selected$, this._auth.user]);
 
   constructor(
     private _afs: AngularFirestore,
     private _cd: ChangeDetectorRef,
-    private _router: Router,
     private _auth: AngularFireAuth
   ) {}
 
   async ngOnInit() {
     this.userAndLapseSubscription$
       .pipe(
+        // Destroy previous chart (if any) and intialize loading state.
         tap(() => {
           if (this.chart) {
             this.chart.destroy();
           }
           this.loading = true;
         }),
+        // Converts data for easier manipulation.
         map((data) => ({ lapse: data[0], uid: data[1]?.uid })),
-        takeUntil(this._unsubscribe$),
+        // Retrieves Firebase data (Products and Sales)
         switchMap((data) => {
           return combineLatest([
             this._afs
@@ -77,7 +87,7 @@ export class BalanceComponent implements OnInit, OnDestroy {
                 ref.where(
                   'lastModification',
                   '>=',
-                  LABELS[data.lapse].condition()
+                  CHART_DATE_INFO[data.lapse].condition()
                 )
               )
               .valueChanges() as Observable<Product[]>,
@@ -86,12 +96,12 @@ export class BalanceComponent implements OnInit, OnDestroy {
                 ref.where(
                   'lastModification',
                   '>=',
-                  LABELS[data.lapse].condition()
+                  CHART_DATE_INFO[data.lapse].condition()
                 )
               )
               .valueChanges() as Observable<Sale[]>,
           ]).pipe(
-            takeUntil(this._unsubscribe$),
+            // Maps Firebase data for chart.
             map(([products, sales]) => {
               return {
                 'Inversión Neta': round(
@@ -104,12 +114,14 @@ export class BalanceComponent implements OnInit, OnDestroy {
                 ),
                 'Ventas Totales': round(sumBy(sales, 'salesTotal'), 2),
                 since: dateFnsFormat(
-                  LABELS[data.lapse].condition(),
+                  CHART_DATE_INFO[data.lapse].condition(),
                   DATE_FORMATS.BASE
                 ),
                 to: dateFnsFormat(new Date(), DATE_FORMATS.BASE),
               };
-            })
+            }),
+            // Unsubscribe
+            takeUntil(this._unsubscribe$)
           );
         })
       )
@@ -134,10 +146,6 @@ export class BalanceComponent implements OnInit, OnDestroy {
   private _createInvestmentAndProfitChart: (data: GenericObject) => void = (
     data: GenericObject
   ) => {
-    if (this.chart) {
-      this.chart.destroy();
-    }
-
     const since = data.since;
     const to = data.to;
     delete data.since;

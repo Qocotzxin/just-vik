@@ -1,3 +1,6 @@
+/**
+ * List of colors (palette based).
+ */
 const colors = [
   '#01A8A7',
   '#26CDBF',
@@ -20,9 +23,14 @@ const colors = [
   '#FFAE01',
   '#E9E8AA',
   '#A2CC6D',
-  '#F57B12'
+  '#F57B12',
 ];
 
-export function getRandomColor() {
+/**
+ * Chooses a random color from the array and returns it.
+ * @function
+ * @returns: string
+ */
+export function getRandomColor(): string {
   return colors[Math.floor(Math.random() * colors.length)];
 }

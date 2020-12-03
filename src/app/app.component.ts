@@ -10,6 +10,9 @@ import { Router } from '@angular/router';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
+  /**
+   * Sidenav links/sections
+   */
   links = [
     {
       path: '/products',
@@ -34,10 +37,18 @@ export class AppComponent {
     private _snackBar: MatSnackBar
   ) {}
 
+  /**
+   * Logs the user out and routes him/her to the main page.
+   */
   logout() {
     this.auth
       .signOut()
       .then(() => this.router.navigate(['/']))
-      .catch(() => this._snackBar.open('No se pudo desloguear.', 'CERRAR'));
+      .catch(() =>
+        this._snackBar.open(
+          'Hubo un error al desloguearse. Por favor intentá nuevamente.',
+          'CERRAR'
+        )
+      );
   }
 }

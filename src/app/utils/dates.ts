@@ -11,29 +11,34 @@ export const DATE_FORMATS = {
   MONTH_READABLE: 'MMMM',
 };
 
-export const LABELS = {
+/**
+ * Provides date information to correctly display charts data.
+ */
+export const CHART_DATE_INFO = {
   [Lapse.week]: {
     keys: getWeekKeys,
     value: getWeekLabels,
-    condition: getWeekCondition,
+    condition: getWeekMinDateToSearch,
   },
   [Lapse.month]: {
     keys: getMonthKeys,
     value: getMonthLabels,
-    condition: getMonthCondition,
+    condition: getMonthMinDateToSearch,
   },
   [Lapse.year]: {
     keys: getYearKeys,
     value: getYearLabels,
-    condition: getYearCondition,
+    condition: getYearMinDateToSearch,
   },
 };
 
 /**
  * Formats a date into the expected string format.
- * @param date {number | Date}
- * @param formatStr {string}
- * @returns {string}
+ * It's a date-fns native format function wrapper to avoid
+ * passing the locale each time.
+ * @param date: number | Date
+ * @param formatStr: string
+ * @returns string
  */
 export function dateFnsFormat(
   date: number | Date,
@@ -44,14 +49,35 @@ export function dateFnsFormat(
   });
 }
 
-export function dateFnsGetWeekOfMonth(date: number | Date) {
+/**
+ * Returns the corresponding week of month for a specified date.
+ * It's a date-fns native getWeekOfMonth function wrapper to avoid
+ * passing the locale each time.
+ * @param date: number | Date
+ * @returns number
+ */
+export function dateFnsGetWeekOfMonth(date: number | Date): number {
   return getWeekOfMonth(date, {
     locale: es,
   });
 }
 
 /**
- * Retrieves labels for sales chart on a week basis.
+ * Returns the corresponding beginning of week (as Date)
+ * for a specified time frame.
+ * It's a date-fns native eachWeekOfInterval function wrapper to avoid
+ * passing the locale each time.
+ * @param interval: Interval
+ * @returns Date[]
+ */
+export function dateFnsEachWeekOfInterval(interval: Interval): Date[] {
+  return eachWeekOfInterval(interval, { locale: es });
+}
+
+/**
+ * Returns labels for sales chart (x axis) on a week basis.
+ * @function
+ * @returns string[]
  */
 function getWeekLabels(): string[] {
   const labels = [];
@@ -64,22 +90,29 @@ function getWeekLabels(): string[] {
   return labels;
 }
 
+/**
+ * Returns labels for sales chart (x axis) on a month basis.
+ * @function
+ * @returns string[]
+ */
 function getMonthLabels(): string[] {
   const today = new Date();
 
   const formattedToday = dateFnsFormat(today, DATE_FORMATS.BASE);
 
-  const labels = eachWeekOfInterval(
-    {
-      start: new Date(today.getFullYear(), today.getMonth(), 1),
-      end: today,
-    },
-    { locale: es }
-  ).map((d) => dateFnsFormat(d, DATE_FORMATS.BASE));
+  const labels = dateFnsEachWeekOfInterval({
+    start: new Date(today.getFullYear(), today.getMonth(), 1),
+    end: today,
+  }).map((d) => dateFnsFormat(d, DATE_FORMATS.BASE));
 
-  return !!labels.find(d => d === formattedToday) ? labels : [...labels, formattedToday];
+  return labels.includes(formattedToday) ? labels : [...labels, formattedToday];
 }
 
+/**
+ * Returns labels for sales chart (x axis) on a year basis.
+ * @function
+ * @returns string[]
+ */
 function getYearLabels(): string[] {
   const months = [];
   const today = new Date();
@@ -95,29 +128,68 @@ function getYearLabels(): string[] {
   return months;
 }
 
-function getWeekCondition(): Date {
+/**
+ * Returns the minimum lastModification date for the search
+ * (for week basis search).
+ * @function
+ * @returns Date
+ */
+function getWeekMinDateToSearch(): Date {
   return sub(new Date(), { days: 7 });
 }
 
-function getMonthCondition(): Date {
+/**
+ * Returns the minimum lastModification date for the search
+ * (for month basis search).
+ * @function
+ * @returns Date
+ */
+function getMonthMinDateToSearch(): Date {
   const today = new Date();
   return new Date(today.getFullYear(), today.getMonth(), 1);
 }
 
-function getYearCondition(): Date {
+/**
+ * Returns the minimum lastModification date for the search
+ * (for year basis search).
+ * @function
+ * @returns Date
+ */
+function getYearMinDateToSearch(): Date {
   const today = new Date();
   return new Date(today.getFullYear(), 0, 1);
 }
 
-function getWeekKeys(date: Date, labels: string[]) {
+/**
+ * Parses the specified date and returns it in the same format
+ * as the labels.
+ * @param date: Date
+ * @param labels: string[]
+ * @returns string
+ */
+function getWeekKeys(date: Date, labels: string[]): string {
   return dateFnsFormat(date, DATE_FORMATS.BASE);
 }
 
-function getMonthKeys(date: Date, labels: string[]) {
+/**
+ * Parses the specified date and returns it in the same format
+ * as the labels.
+ * @param date: Date
+ * @param labels: string[]
+ * @returns string
+ */
+function getMonthKeys(date: Date, labels: string[]): string {
   const dateWeek = dateFnsGetWeekOfMonth(date);
   return labels[dateWeek - 1];
 }
 
-function getYearKeys(date: Date, labels: string[]) {
+/**
+ * Parses the specified date and returns it in the same format
+ * as the labels.
+ * @param date: Date
+ * @param labels: string[]
+ * @returns string
+ */
+function getYearKeys(date: Date, labels: string[]): string {
   return dateFnsFormat(date, DATE_FORMATS.MONTH_READABLE);
 }
