@@ -1,6 +1,6 @@
 // Ag grid imports
-@import "~@ag-grid-community/core/dist/styles/ag-grid.css";
-@import "~@ag-grid-community/core/dist/styles/ag-theme-alpine.css";
+@import "../node_modules/ag-grid-community/dist/styles/ag-grid.css";
+@import "../node_modules/ag-grid-community/dist/styles/ag-theme-alpine-dark.css";
 
 // Local Material icons
 $material-design-icons-font-directory-path: "~material-design-icons-iconfont/dist/fonts/";

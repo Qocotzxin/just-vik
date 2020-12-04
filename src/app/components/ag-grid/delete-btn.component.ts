@@ -1,4 +1,4 @@
-import { ICellRendererAngularComp } from '@ag-grid-community/angular';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 
 @Component({
