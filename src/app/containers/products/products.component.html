@@ -12,7 +12,7 @@
   </div>
 
   <!-- Table -->
-  <div *ngIf="products | async as productList" style="width: 100%;">
+  <div *ngIf="product$ | async as productList" style="width: 100%;">
     <ag-grid-angular *ngIf="productList.length; else emptyData" class="ag-theme-alpine-dark" [rowData]="productList"
       [columnDefs]="columnDefs" [localeText]="localeText" [frameworkComponents]="frameworkComponents"
       rowSelection="single" (cellClicked)="onCellClicked($event, productList)" [pagination]="true"

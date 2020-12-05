@@ -1,4 +1,6 @@
+import { AngularFirestoreDocument, QueryFn } from '@angular/fire/firestore';
 import firebase from 'firebase/app';
+import { Observable } from 'rxjs';
 import { Product } from './product';
 
 export interface Sale {
@@ -17,5 +19,15 @@ export interface Sale {
 
 export enum TransactionType {
   percentage = 'Porcentaje (%)',
-  amount = 'Monto Directo ($)'
+  amount = 'Monto Directo ($)',
 }
+
+export type SalesCollection = (
+  user: firebase.User | null,
+  queryFn?: QueryFn<firebase.firestore.DocumentData> | undefined
+) => Observable<Sale[] | null>;
+
+export type SaleDoc = (
+  user: firebase.User | null,
+  id: string
+) => AngularFirestoreDocument<Sale>;
