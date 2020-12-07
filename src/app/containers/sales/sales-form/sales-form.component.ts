@@ -4,12 +4,6 @@ import {
   Input,
   OnInit,
 } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import {
-  AngularFirestore,
-  AngularFirestoreCollection,
-  AngularFirestoreDocument,
-} from '@angular/fire/firestore';
 import {
   FormControl,
   FormGroup,
@@ -18,12 +12,19 @@ import {
 } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import firebase from 'firebase/app';
 import round from 'lodash/round';
-import { Observable, of } from 'rxjs';
-import { distinctUntilChanged, filter } from 'rxjs/operators';
+import { forkJoin, Observable, of } from 'rxjs';
+import {
+  catchError,
+  distinctUntilChanged,
+  filter,
+  switchMap,
+} from 'rxjs/operators';
 import { Product } from 'src/app/model/product';
 import { Sale, TransactionType } from 'src/app/model/sale';
+import { CollectionsService } from 'src/app/services/collections.service';
+import { COLLECTION_FIELDS } from 'src/app/utils/collections';
+import { ACTION_TEXT } from 'src/app/utils/messages';
 import { maxStock } from 'src/app/utils/validators';
 
 @Component({
@@ -33,10 +34,6 @@ import { maxStock } from 'src/app/utils/validators';
   templateUrl: 'sales-form.component.html',
 })
 export class SalesFormComponent implements OnInit {
-  private _salesCollection!: AngularFirestoreCollection<Sale[]>;
-  private _productDoc!: AngularFirestoreDocument<Product>;
-  private _user: firebase.User | null = null;
-
   /**
    * List of products for product select field.
    * @public
@@ -84,30 +81,19 @@ export class SalesFormComponent implements OnInit {
     },
     [maxStock]
   );
+
+  /**
+   * Original form values to reset the form.
+   */
   originalValues = this.form.value;
 
   constructor(
-    private _afs: AngularFirestore,
-    private _auth: AngularFireAuth,
     private _snackBar: MatSnackBar,
-    private _router: Router
+    private _router: Router,
+    private _collections: CollectionsService
   ) {}
 
   async ngOnInit() {
-    try {
-      this._user = await this._auth.currentUser;
-    } catch {
-      this._openSnackBar(
-        'No se pudo encontrar el usuario. Por favor intentá nuevamente.',
-        'CERRAR'
-      );
-      this._router.navigate(['']);
-    }
-
-    this._salesCollection = this._afs.collection<Sale[]>(
-      `users/${this._user?.uid}/sales`
-    );
-
     this.form.valueChanges
       .pipe(
         filter((sale: Sale) => !!sale.product),
@@ -121,45 +107,50 @@ export class SalesFormComponent implements OnInit {
    * @async
    * @public
    * @method
-   * @param formDirective {FormGroupDirective}
-   * @returns {void}
+   * @param formDirective: FormGroupDirective
    */
-  async onSubmit(formDirective: FormGroupDirective) {
+  onSubmit(formDirective: FormGroupDirective) {
     if (!this.form.valid) {
       return;
     }
 
-    const product = this.form.get('product')?.value;
+    const product = this.form.get(COLLECTION_FIELDS.PRODUCT)?.value;
+    this.loading = true;
 
-    this._productDoc = this._afs.doc<Product>(
-      `users/${this._user?.uid}/products/${product.id}`
-    );
+    this._collections.user
+      .pipe(
+        switchMap((user) => {
+          return forkJoin([
+            // Adds the sale.
+            this._collections.salesCollection(user).add({
+              ...this.form.getRawValue(),
+              product: { name: product.name, id: product.id },
+              lastModification: new Date(),
+            }),
+            // Updates product stock.
+            this._collections.productDoc(user, product.id).update({
+              stock:
+                product.stock -
+                this.form.get(COLLECTION_FIELDS.QUANTITY)?.value,
+            }),
+          ]).pipe(
+            catchError(() =>
+              of('No se pudo guardar la venta. Por favor intentá nuevamente.')
+            )
+          );
+        })
+      )
+      .subscribe((data) => {
+        this.loading = false;
+        if (typeof data === 'string') {
+          this._openSnackBar(data, ACTION_TEXT);
+          return;
+        }
 
-    try {
-      this.loading = true;
-      // Creates the sale.
-      await this._salesCollection.add({
-        ...this.form.getRawValue(),
-        product: { name: product.name, id: product.id },
-        lastModification: new Date(),
+        formDirective.resetForm();
+        this.form.reset(this.originalValues);
+        this._openSnackBar('La venta se guardó con éxito.', ACTION_TEXT);
       });
-
-      // Updates product stock.
-      await this._productDoc.update({
-        stock: product.stock - this.form.get('quantity')?.value,
-      });
-      this._openSnackBar('La venta se guardó con éxito.', 'CERRAR');
-      formDirective.resetForm();
-    } catch {
-      this._openSnackBar(
-        'No se pudo guardar la venta. Por favor intentá nuevamente.',
-        'CERRAR'
-      );
-    } finally {
-      formDirective.resetForm();
-      this.form.reset(this.originalValues);
-      this.loading = false;
-    }
   }
 
   /**
@@ -167,8 +158,7 @@ export class SalesFormComponent implements OnInit {
    * the selected product price/quantity.
    * @method
    * @private
-   * @param sale {Sale}
-   * @returns {void}
+   * @param sale Sale
    */
   private _updateFormValues = (sale: Sale) => {
     const product = sale.product as Product;
@@ -202,9 +192,8 @@ export class SalesFormComponent implements OnInit {
    * Opens a snackbar with a specified message and label.
    * @method
    * @private
-   * @param message {string}
-   * @param label {string}
-   * @returns {void}
+   * @param message: string
+   * @param label: string
    */
   private _openSnackBar(message: string, label: string) {
     this._snackBar.open(message, label, {
@@ -217,9 +206,9 @@ export class SalesFormComponent implements OnInit {
    * calculatio of form values.
    * @method
    * @private
-   * @param p {Sale}
-   * @param n {Sale}
-   * @returns {boolean}
+   * @param p: Sale
+   * @param n: Sale
+   * @returns boolean
    */
   private _setUpdateConditions = (s: Sale, n: Sale) => {
     return (

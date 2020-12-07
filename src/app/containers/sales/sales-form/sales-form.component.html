@@ -14,7 +14,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Cantidad</mat-label>
-        <input matInput formControlName="quantity">
+        <input matInput type="number" formControlName="quantity">
         <mat-error *ngIf="form.invalid">La cantidad vendida no puede ser menor o igual a cero.</mat-error>
       </mat-form-field>
 

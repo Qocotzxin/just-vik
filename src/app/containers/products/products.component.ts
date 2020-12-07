@@ -18,6 +18,7 @@ import { Product } from 'src/app/model/product';
 import { CollectionsService } from 'src/app/services/collections.service';
 import { productsCols } from 'src/app/utils/ag-grid-config';
 import { dateFnsFormat } from 'src/app/utils/dates';
+import { ACTION_TEXT } from 'src/app/utils/messages';
 import { AG_GRID_LOCALE_ES } from '../../utils/ag-grid-locale';
 
 @Component({
@@ -70,7 +71,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.product$ = this._collections.user.pipe(
       switchMap((user) => {
         return this._collections
-          .productsCollection(user)
+          .productsCollectionChanges(user)
           .pipe(map(this._mapProductsData));
       })
     );
@@ -160,7 +161,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       .subscribe((message) => {
         this._snackBar.open(
           message || 'El producto fue eliminado correctamente.',
-          'CERRAR',
+          ACTION_TEXT,
           {
             duration: 5000,
           }

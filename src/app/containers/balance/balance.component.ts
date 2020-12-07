@@ -7,24 +7,28 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import Chart from 'chart.js';
 import round from 'lodash/round';
 import sum from 'lodash/sum';
 import sumBy from 'lodash/sumBy';
-import { combineLatest, Observable, of, Subject } from 'rxjs';
+import { combineLatest, of, Subject } from 'rxjs';
 import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Lapse } from 'src/app/model/chart';
 import { GenericObject } from 'src/app/model/generic';
 import { Product } from 'src/app/model/product';
 import { Sale } from 'src/app/model/sale';
+import { CollectionsService } from 'src/app/services/collections.service';
+import {
+  COLLECTION_COMPARISONS,
+  COLLECTION_FIELDS,
+} from 'src/app/utils/collections';
 import {
   CHART_DATE_INFO,
   dateFnsFormat,
   DATE_FORMATS,
 } from 'src/app/utils/dates';
+import { ACTION_TEXT } from 'src/app/utils/messages';
 
 const WHITE = '#fff';
 
@@ -59,13 +63,22 @@ export class BalanceComponent implements OnInit, OnDestroy {
   /**
    * Observable that combines the selected timeframe and the user information.
    */
-  userAndLapseSubscription$ = combineLatest([this.selected$, this._auth.user]);
+  userAndLapseSubscription$ = combineLatest([
+    this.selected$,
+    this._collections.user,
+  ]);
+
+  query = (lapse: Lapse) => (ref: any) =>
+    ref.where(
+      COLLECTION_FIELDS.LAST_MODIFICATION,
+      COLLECTION_COMPARISONS.GREATER_OR_EQUAL,
+      CHART_DATE_INFO[lapse].condition()
+    );
 
   constructor(
-    private _afs: AngularFirestore,
     private _cd: ChangeDetectorRef,
-    private _auth: AngularFireAuth,
-    private _snackbar: MatSnackBar
+    private _snackbar: MatSnackBar,
+    private _collections: CollectionsService
   ) {}
 
   async ngOnInit() {
@@ -79,61 +92,37 @@ export class BalanceComponent implements OnInit, OnDestroy {
           this.loading = true;
         }),
         // Converts data for easier manipulation.
-        map((data) => ({ lapse: data[0], uid: data[1]?.uid })),
+        map((data) => ({ lapse: data[0], user: data[1] })),
         // Retrieves Firebase data (Products and Sales)
         switchMap((data) => {
           return combineLatest([
-            this._afs
-              .collection(`users/${data.uid}/products`, (ref) =>
-                ref.where(
-                  'lastModification',
-                  '>=',
-                  CHART_DATE_INFO[data.lapse].condition()
-                )
-              )
-              .valueChanges() as Observable<Product[]>,
-            this._afs
-              .collection(`users/${data.uid}/sales`, (ref) =>
-                ref.where(
-                  'lastModification',
-                  '>=',
-                  CHART_DATE_INFO[data.lapse].condition()
-                )
-              )
-              .valueChanges() as Observable<Sale[]>,
+            this._collections.productsCollectionChanges(
+              data.user,
+              this.query(data.lapse)
+            ),
+            this._collections.salesCollectionChanges(
+              data.user,
+              this.query(data.lapse)
+            ),
           ]).pipe(
             // Maps Firebase data for chart.
             map(([products, sales]) => {
-              return {
-                'Inversión Neta': round(
-                  sum(products.map((p) => p.unitPrice * p.stock)),
-                  2
-                ),
-                'Inversión Bruta': round(
-                  sum(products.map((p) => p.grossUnitPrice * p.stock)),
-                  2
-                ),
-                'Ventas Totales': round(sumBy(sales, 'salesTotal'), 2),
-                since: dateFnsFormat(
-                  CHART_DATE_INFO[data.lapse].condition(),
-                  DATE_FORMATS.BASE
-                ),
-                to: dateFnsFormat(new Date(), DATE_FORMATS.BASE),
-              };
+              return this._mapDataForChart(products, sales, data.lapse);
             }),
             // Unsubscribe
             takeUntil(this._unsubscribe$),
             catchError(() => {
               this._snackbar.open(
                 'Hubo un error, por favor intente nuevamente.',
-                'CERRAR'
+                ACTION_TEXT
               );
-              return of({});
+              return of(null);
             })
           );
         })
       )
       .subscribe((data) => {
+        console.log(data);
         this._createInvestmentAndProfitChart(data);
         this.loading = false;
         this._cd.detectChanges();
@@ -146,14 +135,49 @@ export class BalanceComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Maps the data to feed the chart.
+   * @param products: Product[]
+   * @param sales: Sale[]
+   * @param lapse: Lapse
+   */
+  private _mapDataForChart = (
+    products: Product[] = [],
+    sales: Sale[] = [],
+    lapse: Lapse
+  ): GenericObject => {
+    console.log(products);
+    console.log(sales);
+    return {
+      'Inversión Neta': round(
+        sum(products.map((p) => p.unitPrice * p.stock)),
+        2
+      ),
+      'Inversión Bruta': round(
+        sum(products.map((p) => p.grossUnitPrice * p.stock)),
+        2
+      ),
+      'Ventas Totales': round(sumBy(sales, COLLECTION_FIELDS.SALES_TOTAL), 2),
+      since: dateFnsFormat(
+        CHART_DATE_INFO[lapse].condition(),
+        DATE_FORMATS.BASE
+      ),
+      to: dateFnsFormat(new Date(), DATE_FORMATS.BASE),
+    };
+  };
+
+  /**
    * Destroys the current chart (if any) and creates a new one.
    * @private
    * @property
    * @param data: GenericObject
    */
-  private _createInvestmentAndProfitChart: (data: GenericObject) => void = (
-    data: GenericObject
-  ) => {
+  private _createInvestmentAndProfitChart: (
+    data: GenericObject | null
+  ) => void = (data: GenericObject | null) => {
+    if (!data) {
+      return;
+    }
+
     const since = data.since;
     const to = data.to;
     delete data.since;

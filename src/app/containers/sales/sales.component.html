@@ -14,5 +14,5 @@
   </div>
   <!-- Form -->
   <app-sales-form [products]="product$" *ngIf="view === views.form"></app-sales-form>
-  <app-sales-chart *ngIf="view !== views.form" [uid]="user?.uid"></app-sales-chart>
+  <app-sales-chart *ngIf="view !== views.form"></app-sales-chart>
 </section>

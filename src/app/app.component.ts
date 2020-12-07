@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { ACTION_TEXT } from './utils/messages';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,7 +48,7 @@ export class AppComponent {
       .catch(() =>
         this._snackBar.open(
           'Hubo un error al desloguearse. Por favor intentá nuevamente.',
-          'CERRAR'
+          ACTION_TEXT
         )
       );
   }

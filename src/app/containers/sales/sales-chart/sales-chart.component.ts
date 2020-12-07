@@ -3,20 +3,23 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  Input,
   OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
 import Chart from 'chart.js';
 import firebase from 'firebase/app';
 import round from 'lodash/round';
-import { Observable, Subject } from 'rxjs';
+import { combineLatest, Subject } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Lapse } from 'src/app/model/chart';
 import { GenericObject } from 'src/app/model/generic';
 import { Sale } from 'src/app/model/sale';
+import { CollectionsService } from 'src/app/services/collections.service';
+import {
+  COLLECTION_COMPARISONS,
+  COLLECTION_FIELDS,
+} from 'src/app/utils/collections';
 import { getRandomColor } from 'src/app/utils/colors';
 import {
   CHART_DATE_INFO,
@@ -56,11 +59,6 @@ export class SalesChartComponent implements OnInit, OnDestroy {
   type = CHART_BASIS.TIME;
 
   /**
-   * User ID to use with collections.
-   */
-  @Input() uid?: string | null;
-
-  /**
    * Selected time frame.
    */
   selected$ = new Subject<Lapse>();
@@ -70,11 +68,21 @@ export class SalesChartComponent implements OnInit, OnDestroy {
    */
   loading = true;
 
-  constructor(private _afs: AngularFirestore, private _cd: ChangeDetectorRef) {}
+  query = (lapse: Lapse) => (ProductsCollection: any) =>
+    ProductsCollection.where(
+      COLLECTION_FIELDS.LAST_MODIFICATION,
+      COLLECTION_COMPARISONS.GREATER_OR_EQUAL,
+      CHART_DATE_INFO[lapse].condition()
+    );
+
+  constructor(
+    private _collections: CollectionsService,
+    private _cd: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     // Stream is based on time frame change.
-    this.selected$
+    combineLatest([this.selected$, this._collections.user])
       .pipe(
         // Destroy previous chart (if any) and intialize loading state.
         tap(() => {
@@ -84,26 +92,20 @@ export class SalesChartComponent implements OnInit, OnDestroy {
           this.loading = true;
         }),
         // Retrieves Firebase data.
-        switchMap((lapse: Lapse) => {
+        switchMap(([lapse, user]) => {
           this._labels = CHART_DATE_INFO[lapse].value();
-          return (this._afs
-            .collection(`users/${this.uid}/sales`, (ref) =>
-              ref.where(
-                'lastModification',
-                '>=',
-                CHART_DATE_INFO[lapse].condition()
-              )
-            )
-            .valueChanges() as Observable<Sale[]>).pipe(
-            // Maps Firebase data to use in chart.
-            map((s) => {
-              return this.type === CHART_BASIS.TIME
-                ? this._setSalesInTimeChartMapping(s, lapse)
-                : this._setSalesPerProductChartMapping(s, lapse);
-            }),
-            // Unsubscribe.
-            takeUntil(this._unsubscribe$)
-          );
+          return this._collections
+            .salesCollectionChanges(user, this.query(lapse))
+            .pipe(
+              // Maps Firebase data to use in chart.
+              map((s) => {
+                return this.type === CHART_BASIS.TIME
+                  ? this._setSalesInTimeChartMapping(s, lapse)
+                  : this._setSalesPerProductChartMapping(s, lapse);
+              }),
+              // Unsubscribe.
+              takeUntil(this._unsubscribe$)
+            );
         })
       )
       .subscribe((data) => {

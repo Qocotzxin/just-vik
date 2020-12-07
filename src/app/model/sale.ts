@@ -1,10 +1,14 @@
-import { AngularFirestoreDocument, QueryFn } from '@angular/fire/firestore';
+import {
+  AngularFirestoreCollection,
+  AngularFirestoreDocument,
+  QueryFn,
+} from '@angular/fire/firestore';
 import firebase from 'firebase/app';
 import { Observable } from 'rxjs';
+import { FirebaseModel } from './firebase';
 import { Product } from './product';
 
-export interface Sale {
-  id?: string;
+export interface Sale extends FirebaseModel {
   product: Partial<Product>;
   quantity: number;
   salesPrice: number;
@@ -14,7 +18,6 @@ export interface Sale {
   discount: number;
   extraChargeType: TransactionType;
   extraCharge: number;
-  lastModification: string | firebase.firestore.Timestamp;
 }
 
 export enum TransactionType {
@@ -25,7 +28,12 @@ export enum TransactionType {
 export type SalesCollection = (
   user: firebase.User | null,
   queryFn?: QueryFn<firebase.firestore.DocumentData> | undefined
-) => Observable<Sale[] | null>;
+) => AngularFirestoreCollection<Sale>;
+
+export type SalesCollectionChanges = (
+  user: firebase.User | null,
+  queryFn?: QueryFn<firebase.firestore.DocumentData> | undefined
+) => Observable<Sale[]>;
 
 export type SaleDoc = (
   user: firebase.User | null,
