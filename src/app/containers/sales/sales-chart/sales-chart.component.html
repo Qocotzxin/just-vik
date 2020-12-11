@@ -1,20 +1,9 @@
-<div class="page">
-  <div class="page__header">
-    <h1>Últimas Ventas</h1>
-    <app-time-lapse-selector [currentValue$]="selected$" [reset]="type"></app-time-lapse-selector>
-  </div>
-  <div class="chart-container__actions">
-    <button mat-raised-button color="primary" aria-label="Ventas por día" matTooltip="Ventas por día"
-      (click)="setType('time')" [disabled]="type === 'time'">
-      Por día
-    </button>
-    <button mat-raised-button color="primary" aria-label="Ventas por producto" matTooltip="Ventas por producto"
-      (click)="setType('product')" [disabled]="type === 'product'">
-      Por producto
-    </button>
-  </div>
-  <div class="chart-container">
-    <mat-spinner *ngIf="loading" [diameter]="50"></mat-spinner>
-    <canvas width="1080" height="720" #chart></canvas>
-  </div>
+<div class="page__header">
+  <app-chart-type-selector [options]="typeSelectorOptions" [selectedType$]="selectedType$"></app-chart-type-selector>
+  <div></div>
+  <app-time-lapse-selector [currentValue$]="selected$" [reset]="type"></app-time-lapse-selector>
+</div>
+<div class="chart-container">
+  <mat-spinner *ngIf="loading" [diameter]="50"></mat-spinner>
+  <canvas width="1080" height="720" #chart></canvas>
 </div>

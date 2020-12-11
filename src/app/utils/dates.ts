@@ -167,7 +167,7 @@ function getYearMinDateToSearch(): Date {
  * @param labels: string[]
  * @returns string
  */
-function getWeekKeys(date: Date, labels: string[]): string {
+function getWeekKeys(date: Date): string {
   return dateFnsFormat(date, DATE_FORMATS.BASE);
 }
 
@@ -178,9 +178,9 @@ function getWeekKeys(date: Date, labels: string[]): string {
  * @param labels: string[]
  * @returns string
  */
-function getMonthKeys(date: Date, labels: string[]): string {
+function getMonthKeys(date: Date): string {
   const dateWeek = dateFnsGetWeekOfMonth(date);
-  return labels[dateWeek - 1];
+  return getMonthLabels()[dateWeek - 1];
 }
 
 /**
@@ -190,6 +190,6 @@ function getMonthKeys(date: Date, labels: string[]): string {
  * @param labels: string[]
  * @returns string
  */
-function getYearKeys(date: Date, labels: string[]): string {
+function getYearKeys(date: Date): string {
   return dateFnsFormat(date, DATE_FORMATS.MONTH_READABLE);
 }

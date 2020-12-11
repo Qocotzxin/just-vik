@@ -99,10 +99,11 @@ input:-webkit-autofill {
 
   &__header {
     width: 100%;
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1em;
+    justify-items: center;
+    margin-bottom: 2em;
 
     h1 {
       margin: 0;
@@ -124,6 +125,17 @@ input:-webkit-autofill {
   &__empty {
     margin: 4em 0;
   }
+
+  &-chart__actions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    button {
+      margin: 1em;
+    }
+  }
 }
 
 // Sidenav
@@ -139,4 +151,8 @@ input:-webkit-autofill {
     margin-right: 1em;
     margin-left: -1em;
   }
+}
+
+.justify-end {
+  justify-self: end !important;
 }

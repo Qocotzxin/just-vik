@@ -12,7 +12,7 @@ import firebase from 'firebase/app';
 import round from 'lodash/round';
 import { combineLatest, Subject } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { Lapse } from 'src/app/model/chart';
+import { Lapse, TypeSelectorOptions } from 'src/app/model/chart';
 import { GenericObject } from 'src/app/model/generic';
 import { Sale } from 'src/app/model/sale';
 import { CollectionsService } from 'src/app/services/collections.service';
@@ -59,6 +59,25 @@ export class SalesChartComponent implements OnInit, OnDestroy {
   type = CHART_BASIS.TIME;
 
   /**
+   * Type selector configuration options.
+   */
+  typeSelectorOptions: TypeSelectorOptions[] = [
+    {
+      type: 'time',
+      text: 'Por día',
+    },
+    {
+      type: 'product',
+      text: 'Por producto',
+    },
+  ];
+
+  /**
+   * Subject for type selector to emit current type.
+   */
+  selectedType$ = new Subject<string>();
+
+  /**
    * Selected time frame.
    */
   selected$ = new Subject<Lapse>();
@@ -82,7 +101,7 @@ export class SalesChartComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Stream is based on time frame change.
-    combineLatest([this.selected$, this._collections.user])
+    combineLatest([this.selected$, this._collections.user, this.selectedType$])
       .pipe(
         // Destroy previous chart (if any) and intialize loading state.
         tap(() => {
@@ -92,16 +111,19 @@ export class SalesChartComponent implements OnInit, OnDestroy {
           this.loading = true;
         }),
         // Retrieves Firebase data.
-        switchMap(([lapse, user]) => {
+        switchMap(([lapse, user, type]) => {
           this._labels = CHART_DATE_INFO[lapse].value();
           return this._collections
             .salesCollectionChanges(user, this.query(lapse))
             .pipe(
               // Maps Firebase data to use in chart.
               map((s) => {
-                return this.type === CHART_BASIS.TIME
-                  ? this._setSalesInTimeChartMapping(s, lapse)
-                  : this._setSalesPerProductChartMapping(s, lapse);
+                return {
+                  ...(type === CHART_BASIS.TIME
+                    ? this._setSalesInTimeChartMapping(s, lapse)
+                    : this._setSalesPerProductChartMapping(s, lapse)),
+                  type,
+                };
               }),
               // Unsubscribe.
               takeUntil(this._unsubscribe$)
@@ -109,7 +131,7 @@ export class SalesChartComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe((data) => {
-        this.type === CHART_BASIS.TIME
+        data.type === CHART_BASIS.TIME
           ? this._createSalesInTimeChart(data)
           : this._createSalesPerProductChart(data);
 
@@ -121,10 +143,6 @@ export class SalesChartComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this._unsubscribe$.next();
     this._unsubscribe$.complete();
-  }
-
-  setType(type: string) {
-    this.type = type;
   }
 
   /**
@@ -245,8 +263,7 @@ export class SalesChartComponent implements OnInit, OnDestroy {
   private _setSalesInTimeChartMapping(s: Sale[], lapse: Lapse): GenericObject {
     return s.reduce((acc: GenericObject, cur) => {
       const lastModification = CHART_DATE_INFO[lapse].keys(
-        (cur.lastModification as firebase.firestore.Timestamp).toDate(),
-        this._labels
+        (cur.lastModification as firebase.firestore.Timestamp).toDate()
       );
 
       if (!acc[lastModification]) {

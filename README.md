@@ -11,6 +11,9 @@ alguien más.
 
 Esta es la versión 1.0.0 pero con el tiempo se irán agregando cosas nuevas dependiendo del uso que tenga.
 
+## Versión de Producción
+http://mis-ventas-ba.web.app/
+
 ## Stack y librerías destacables
 
 - Angular 11

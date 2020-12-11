@@ -1,13 +1,15 @@
 <section class="page">
   <!-- Header -->
-  <div class="page__header page__header--no-title">
-    <div>
-      <button class="page__actions" mat-mini-fab color="primary" aria-label="Agregar Venta" primary
-        matTooltip="Agregar Venta" (click)="view = views.form" [disabled]="view === views.form">
+  <div class="page__header">
+    <div></div>
+    <h1>{{title}}</h1>
+    <div class="justify-end">
+      <button mat-mini-fab color="primary" aria-label="Agregar Venta" primary matTooltip="Agregar Venta"
+        (click)="setView(views.form)" [disabled]="view === views.form">
         <mat-icon>add</mat-icon>
       </button>
-      <button class="page__actions" mat-mini-fab color="primary" aria-label="Gráficos de Venta" primary
-        matTooltip="Gráficos de Venta" (click)="view = views.chart" [disabled]="view === views.chart">
+      <button mat-mini-fab color="primary" aria-label="Gráficos de Venta" primary matTooltip="Gráficos de Venta"
+        (click)="setView(views.chart)" [disabled]="view === views.chart">
         <mat-icon>show_chart</mat-icon>
       </button>
     </div>

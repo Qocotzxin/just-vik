@@ -1,5 +1,14 @@
-<section class="products-form">
-  <h1>Agregar Producto</h1>
+<section class="page">
+
+  <div class="page__header">
+    <div></div>
+    <h1>Agregar Producto</h1>
+    <button mat-mini-fab color="primary"class="justify-end" aria-label="Volver" primary matTooltip="Volver"
+      (click)="router.navigate(['products'])">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+  </div>
+
   <form (ngSubmit)="onSubmit(formDirective)" [formGroup]="form" #formDirective="ngForm">
     <div>
       <mat-form-field appearance="outline">

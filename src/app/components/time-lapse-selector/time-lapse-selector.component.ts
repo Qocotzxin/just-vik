@@ -6,6 +6,14 @@ import { Lapse } from 'src/app/model/chart';
 @Component({
   selector: 'app-time-lapse-selector',
   templateUrl: 'time-lapse-selector.component.html',
+  styles: [
+    `
+      /deep/ .mat-form-field.lapse-selector .mat-form-field-wrapper {
+        margin: 0;
+        padding: 0;
+      }
+    `,
+  ],
 })
 export class LapseSelectorComponent implements AfterViewInit {
   private _reset: string | null = null;

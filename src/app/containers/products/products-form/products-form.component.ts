@@ -84,11 +84,11 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
 
   constructor(
     private _snackBar: MatSnackBar,
-    private _router: Router,
     private _activatedRoute: ActivatedRoute,
     private _collections: CollectionsService,
-    private _cd: ChangeDetectorRef
-  ) {}
+    private _cd: ChangeDetectorRef,
+    public router: Router
+    ) {}
 
   ngOnInit() {
     this._loadFormDataIfEditing();
@@ -119,7 +119,7 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
     } catch {
       this._openSnackBar('No se pudo guardar el producto.', ACTION_TEXT);
     } finally {
-      this._router.navigate(['products', 'add']);
+      this.router.navigate(['products', 'add']);
       // In case it's a creation, form is reset since navigation won't happen.
       formDirective.resetForm();
       this.form.reset(this.originalValues);
@@ -167,7 +167,7 @@ export class ProductsFormComponent implements OnInit, OnDestroy {
         if (typeof data === 'string') {
           this._openSnackBar(data, ACTION_TEXT);
 
-          this._router.navigate(['']);
+          this.router.navigate(['']);
         } else {
           if (data) {
             this.form.patchValue({ ...data }, { emitEvent: false });

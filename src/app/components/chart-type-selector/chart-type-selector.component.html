@@ -1,0 +1,7 @@
+<div class="page-chart__actions">
+  <button *ngFor="let button of options; trackBy: trackBy" mat-raised-button [color]="button.color || 'primary'"
+    [attr.aria-label]="button.ariaLabel || button.text" [matTooltip]="button.text" (click)="setType(button.type)"
+    [disabled]="currentType === button.type">
+    {{button.text}}
+  </button>
+</div>

@@ -19,6 +19,8 @@ export class SalesComponent implements OnInit {
   loading = true;
   view = this.views.form;
 
+  title = 'Agregar Venta';
+
   constructor(
     private _router: Router,
     public _collections: CollectionsService
@@ -37,5 +39,10 @@ export class SalesComponent implements OnInit {
         )
       )
     );
+  }
+
+  setView(view: string) {
+    this.view = view;
+    this.title = view === this.views.chart ? 'Últimas Ventas' : 'Agregar Venta';
   }
 }

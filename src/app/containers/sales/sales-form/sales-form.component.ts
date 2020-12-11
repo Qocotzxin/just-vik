@@ -124,7 +124,11 @@ export class SalesFormComponent implements OnInit {
             // Adds the sale.
             this._collections.salesCollection(user).add({
               ...this.form.getRawValue(),
-              product: { name: product.name, id: product.id },
+              product: {
+                name: product.name,
+                id: product.id,
+                grossUnitPrice: product.grossUnitPrice,
+              },
               lastModification: new Date(),
             }),
             // Updates product stock.

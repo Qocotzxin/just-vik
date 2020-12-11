@@ -1,18 +1,10 @@
 <section class="page">
+  <h1>Balance</h1>
   <div class="page__header">
-    <h1>Balance</h1>
-    <app-time-lapse-selector [currentValue$]="selected$"></app-time-lapse-selector>
+    <app-chart-type-selector [options]="typeSelectorOptions" [selectedType$]="selectedType$"></app-chart-type-selector>
+    <div></div>
+    <app-time-lapse-selector [currentValue$]="selected$" class="justify-end"></app-time-lapse-selector>
   </div>
-  <!-- <div class="chart-container__actions">
-    <button mat-raised-button color="primary" aria-label="Ventas por día" matTooltip="Ventas por día"
-      (click)="setType('time')" [disabled]="type === 'investmentsAndSales'">
-      Por día
-    </button>
-    <button mat-raised-button color="primary" aria-label="Ventas por producto" matTooltip="Ventas por producto"
-      (click)="setType('product')" [disabled]="type === 'product'">
-      Por producto
-    </button>
-  </div> -->
   <div class="chart">
     <mat-spinner *ngIf="loading" [diameter]="50"></mat-spinner>
     <canvas width="1080" height="720" #chart></canvas>
