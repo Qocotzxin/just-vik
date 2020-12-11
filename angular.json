@@ -24,6 +24,13 @@
               "path": "./custom-webpack.config.js",
               "replaceDuplicatePlugins": true
             },
+            "allowedCommonJsDependencies": [
+              "lodash/round",
+              "lodash/sum",
+              "lodash/sumBy",
+              "date-fns",
+              "chart.js"
+            ],
             "outputPath": "dist/mis-ventas-ba",
             "index": "src/index.html",
             "main": "src/main.ts",
