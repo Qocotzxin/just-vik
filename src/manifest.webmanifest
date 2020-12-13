@@ -1,10 +1,10 @@
 {
   "name": "mis-ventas-ba",
-  "short_name": "mis-ventas-ba",
+  "short_name": "misventasba",
   "theme_color": "#C2175B",
   "background_color": "#303030",
   "display": "standalone",
-  "prefer_related_applications": "true",
+  "prefer_related_applications": true,
   "scope": "./",
   "start_url": "./",
   "icons": [
